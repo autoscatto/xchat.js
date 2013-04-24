@@ -111,6 +111,8 @@ p.backlog span.msg{
 <!-- tutta la path policy e' da rivedere -->
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="jquery.scrollTo.min.js"></script>
+<script type="text/javascript" src="jquery.oembed.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery.oembed.css"> 
 <script type="text/javascript">
 templates={
     raw:'<p class="line" id="l{counter}">{text}</p>',
@@ -142,11 +144,45 @@ function stringtocol(s){
 
 }
 
+function utuba(url) {
+  var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+  return (url.match(p)) ? '<iframe width="420" height="315" src="http://www.youtube.com/embed/' + RegExp.$1 + '?frame=clarochesi" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>': false;
+}
+
+function vimea(url){
+  var p=/^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/;
+  return (url.match(p)) ? '<iframe width="420" height="315" src="http://player.vimeo.com/video/'+ RegExp.$5 + '?frame=clarochesi" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>': false;
+}
 
 
-function rendertxt(text) {
-    text = text.replace(/(https?:\/\/[^ ]*?)(<|$|\s)/g, '<a href="$1">$1</a>$2')
-    text = text.replace(/>(http.*?(png|gif|jpg|jpeg))<\/a>/g, '><img style="width: 60px; border: 0px; -moz-border-radius: 5px; border-radius: 5px;" src="$1" onmouseover="showtrail(\'$1\');" onmouseout="hidetrail();" onclick="hidetrail();"/></a>')
+function getDomain(url){
+try {return url.match(/:\/\/(www\.)?(.[^/:]+)/)[2]; }
+catch(err) {return false;}
+}
+
+function domainmatch(url){
+try{
+	doma=getDomain(url)
+	domini={
+			'youtube.com':utuba,
+			'youtu.be':utuba,
+			'vimeo.com':vimea
+			}
+	if (doma){return domini[doma](url);}
+	return false;
+}
+catch(err) {return false;}
+}
+
+
+
+function rendertxt(text,embedda) {
+    //res=domainmatch(text)
+    //if(re){  text=res  }
+	if (false) {2+3;}
+    else{
+    text = text.replace(/(https?:\/\/[^ ]*?)(<|$|\s)/g, (embedda)?'<a class="embed" href="$1">$1</a>$2':'<a href="$1">$1</a>$2')
+    text = text.replace(/>(http.*?(png|gif|jpg|jpeg))<\/a>/g, '><img style="width: 60px; border: 0px; -moz-border-radius: 5px; border-radius: 5px;" src="$1" onmouseover="showtrail(\'$1\');" onmouseout="hidetrail();" onclick="hidetrail();"/></a>') }
     return text
 }
 
@@ -174,7 +210,14 @@ function Xchat(){
         else {templo=templates.chanmsg}
         if(a) classona=classona+" action"
 		if(h) {classona=classona+" high";}
-        $("#irc").append(parses(templo,{counter:counter(),text:rendertxt(s),classa:classona,color:stringtocol(n),time:t,nickname:n})); funct.scroll();
+		idnum=counter();
+        $("#irc").append(parses(templo,{counter:idnum,text:rendertxt(s,true),classa:classona,color:stringtocol(n),time:t,nickname:n})); funct.scroll();
+		$(function(){
+		   $("#l"+idnum+' a').oembed(null, { 
+                        embedMethod: "append", 
+                        maxWidth: 400, 
+                        maxHeight: 300 });
+		});
     }
     this.printpjoin=  function(n,s,t){
         var templo=templates.pjoin;
@@ -199,7 +242,8 @@ w_linechanmsg=xchat.printachanmsg;
 w_linepjoin=xchat.printpjoin;
 w_linebacklog=xchat.printback;
 $(window).load(function(){
-     jsready();
+   jsready();
+
 });
 
 

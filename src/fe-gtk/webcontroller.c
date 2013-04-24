@@ -103,12 +103,29 @@ const JSObjectRef uichat_invokev(UIChat *chat, char function[] , char arg_format
 				break;
 		}
 	}
-    JSObjectRef functionObject = (JSObjectRef)JSObjectGetProperty(chat->context, chat->globalobj,JSStringCreateWithUTF8CString(function), NULL);
-    result = JSObjectCallAsFunction(chat->context, functionObject, chat->globalobj, i, js_args, NULL);
 	va_end(args);
+	JSObjectRef functionObject = (JSObjectRef)JSObjectGetProperty(chat->context,chat->globalobj,JSStringCreateWithUTF8CString(function), NULL);
+	//XXX: scoprire come mai e' undefin a volte
+	if(JSValueIsUndefined(chat->context, functionObject)){fprintf(stderr,"E' NULLO!!!!ONE1! [%s]\n",function); return NULL;}
+	else{
+	JSValueRef exc = NULL;
+    result = JSObjectCallAsFunction(chat->context, functionObject, chat->globalobj, i, js_args, &exc);
 	free(js_args);
+	if(!result) { //TODO: && DEBUG
+		if(exc) {
+			char *buf = calloc(400, sizeof(char));
+			JSStringRef json = JSValueToStringCopy(chat->context, exc, NULL);
+
+			int buf_chars = JSStringGetUTF8CString(json, buf, 390);
+			printf("EXCEPTION while invoking JS:\n%s\n", buf);
+			free(buf);
+		} else {
+			fprintf(stderr, "Error: method %s does not (still?) exist\n", function);
+		}
+	}
 
 	return (const JSObjectRef) result;
+}
 }
 
 void w_printpartjoin(UIChat *chat,char* n, char * s, char* stamp){
@@ -148,7 +165,7 @@ void uichat_add_msg(UIChat *chat, char* from, char* msg,int index,char* stamp) {
 	case XP_TE_DPRIVACTION:
         //TODO: questo si "perde" il primo messaggio di una chat privata. Forse
 		//e' gestito da un'altra parte?
-		printf("Priv chat at address %p\n", chat);
+		printf("Priv chat at address %p: %s\n", chat, msg);
 		w_printprivmsg(chat, from, msg);
 		break;
 
@@ -179,11 +196,14 @@ XXX: se l'uri e' del tipo file:/// per adesso uso la policy di default
 da riguardare.
 Negli altri casi apro l'uri nel browser con lo stesso metodo di xchat originale.
 Inoltre maschero il click per evitare che ci vada anche la webview
+
+Ho aggiunto il check se è un frame (lo useremo per le preview youtube etc)
 */
 WebKitNavigationResponse click_callback(WebKitWebView* web_view,WebKitWebFrame* frame,WebKitNetworkRequest *request,gpointer user_data){
     const char *new_uri =   webkit_network_request_get_uri(request);
     int result=strncmp(new_uri,"file",4);
-    if(result!=0){
+    fprintf(stderr,"%s - %p.%p\n",new_uri,strstr(new_uri,"frame=clarochesi"),NULL);
+    if(result!=0 && (strstr(new_uri,"frame=clarochesi")==NULL)){
         fe_open_url(new_uri);
         return WEBKIT_NAVIGATION_RESPONSE_IGNORE;
     }
@@ -223,7 +243,6 @@ void create_webview(WebChatController* controller) {
 	webkit_web_view_open(WEBKIT_WEB_VIEW(webView), path);
 	g_signal_connect(G_OBJECT(webView),"navigation-requested",G_CALLBACK(click_callback),NULL);
 
-	gtk_widget_show (webView);
 	controller->frame = webkit_web_view_get_main_frame(WEBKIT_WEB_VIEW(webView));
 	controller->context = webkit_web_frame_get_global_context(controller->frame);
 	controller->globalobj= JSContextGetGlobalObject(controller->context);
@@ -248,6 +267,7 @@ void create_webview(WebChatController* controller) {
 
 	}
 
+    gtk_widget_show (webView);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(controller->view),GTK_POLICY_AUTOMATIC,GTK_POLICY_ALWAYS);
 	gtk_container_add (GTK_CONTAINER(controller->view), webView);
