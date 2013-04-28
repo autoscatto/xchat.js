@@ -101,7 +101,7 @@ div.oembedall-githubrepos ul.oembedall-repo-stats li.oembedall-forks a {
 
 
 span.oembedall-closehide{
-  background-color: #aaa;
+  /*background-color: #aaa;*/
   border-radius: 2px;
   cursor: pointer;
   margin-right: 3px;
@@ -419,4 +419,24 @@ div.oembedall-lanyard .first{
   width: 48.57%;
 margin: 0 0 0 2.857%;
 
+}
+
+.oembedall-container #content{
+border-width: 1px; 
+border-style: dashed;
+background-color:#454346;
+
+}
+
+.wikititle{
+font-size: 1.6em;
+background-color:#ACACAC;
+color: #E0A764;
+}
+.wikititle{
+margin-top: 0px;
+}
+.wikitext{
+-webkit-column-count:2; 
+column-count:2;
 }

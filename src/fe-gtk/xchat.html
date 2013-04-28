@@ -112,7 +112,8 @@ p.backlog span.msg{
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="jquery.scrollTo.min.js"></script>
 <script type="text/javascript" src="jquery.oembed.js"></script>
-<link rel="stylesheet" type="text/css" href="jquery.oembed.css"> 
+<link rel="stylesheet" href="font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="jquery.oembed.css">
 <script type="text/javascript">
 templates={
     raw:'<p class="line" id="l{counter}">{text}</p>',
@@ -144,45 +145,11 @@ function stringtocol(s){
 
 }
 
-function utuba(url) {
-  var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-  return (url.match(p)) ? '<iframe width="420" height="315" src="http://www.youtube.com/embed/' + RegExp.$1 + '?frame=clarochesi" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>': false;
-}
-
-function vimea(url){
-  var p=/^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/;
-  return (url.match(p)) ? '<iframe width="420" height="315" src="http://player.vimeo.com/video/'+ RegExp.$5 + '?frame=clarochesi" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>': false;
-}
-
-
-function getDomain(url){
-try {return url.match(/:\/\/(www\.)?(.[^/:]+)/)[2]; }
-catch(err) {return false;}
-}
-
-function domainmatch(url){
-try{
-	doma=getDomain(url)
-	domini={
-			'youtube.com':utuba,
-			'youtu.be':utuba,
-			'vimeo.com':vimea
-			}
-	if (doma){return domini[doma](url);}
-	return false;
-}
-catch(err) {return false;}
-}
-
 
 
 function rendertxt(text,embedda) {
-    //res=domainmatch(text)
-    //if(re){  text=res  }
-	if (false) {2+3;}
-    else{
     text = text.replace(/(https?:\/\/[^ ]*?)(<|$|\s)/g, (embedda)?'<a class="embed" href="$1">$1</a>$2':'<a href="$1">$1</a>$2')
-    text = text.replace(/>(http.*?(png|gif|jpg|jpeg))<\/a>/g, '><img style="width: 60px; border: 0px; -moz-border-radius: 5px; border-radius: 5px;" src="$1" onmouseover="showtrail(\'$1\');" onmouseout="hidetrail();" onclick="hidetrail();"/></a>') }
+    text = text.replace(/>(http.*?(png|gif|jpg|jpeg))<\/a>/g, '><img style="width: 60px; border: 0px; -moz-border-radius: 5px; border-radius: 5px;" src="$1" onmouseover="showtrail(\'$1\');" onmouseout="hidetrail();" onclick="hidetrail();"/></a>')
     return text
 }
 
@@ -190,6 +157,10 @@ function rendertxt(text,embedda) {
 
 
 function Xchat(){
+
+    var ombdbefore= function ombedf(oembedData){code=oembedData.code.replace(new RegExp('\"//',"gm"),'\"http\://'); this.append('<img id="bouncha" src="images/ballabouncha.gif"></img>'); oembedData.code=code;}
+    var ombdafter = function ombedf(oembedData){$('#bouncha').remove();}
+
     var cr= 0
     var MAXBACK= 200 //quante linee tengo al max visibili (andra' settato da fuori rispettando le opzioni)
     var OLDERLN= 0   //indice della prima riga da togliere se supero MAXBACK
@@ -213,9 +184,11 @@ function Xchat(){
 		idnum=counter();
         $("#irc").append(parses(templo,{counter:idnum,text:rendertxt(s,true),classa:classona,color:stringtocol(n),time:t,nickname:n})); funct.scroll();
 		$(function(){
-		   $("#l"+idnum+' a').oembed(null, { 
-                        embedMethod: "append", 
-                        maxWidth: 400, 
+		   $("#l"+idnum+' a').oembed(null, {
+                        beforeEmbed: ombdbefore,
+                        afterEmbed:  ombdafter,
+                        embedMethod: "append",
+                        maxWidth: 400,
                         maxHeight: 300 });
 		});
     }
