@@ -112,7 +112,7 @@ fe_userlist_numbers (session *sess)
 {
     //TODO> controllare se e' il posto piu' giusto per farlo
     //in pratica cambio tab al cambio di userlist.
-    set_tab_by_index(sess->ui_chat->p_index);
+    //set_tab_by_index(sess->ui_chat->p_index);
 	char tbuf[256];
 
 	if (sess == current_tab || !sess->gui->is_tab)

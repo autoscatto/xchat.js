@@ -34,7 +34,8 @@ cv_tree_sel_cb (GtkTreeSelection *sel, chanview *cv)
 	if (gtk_tree_selection_get_selected (sel, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, COL_CHAN, &ch, -1);
-
+        printf("ANANNANANANANANNANANNANANANANNA\n");
+        set_tab_by_index(((session *)ch->userdata)->ui_chat->p_index);
 		cv->focused = ch;
 		cv->cb_focus (cv, ch, ch->tag, ch->userdata);
 	}
