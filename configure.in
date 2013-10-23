@@ -175,6 +175,19 @@ if test "$gtkfe" != yes; then
 	COMMON_CFLAGS="$GLIB_CFLAGS"
 fi
 
+
+
+AC_SEARCH_LIBS([g_module_symbol], [glib-2.0], glib_gms=yes, glib_gms=no)
+
+if test "glib_gms" = no; then
+	COMMON_CFLAGS="$GLIB_CFLAGS"
+	COMMON_LIBS="$GLIB_LIBS"
+else
+	COMMON_CFLAGS="$GLIB_CFLAGS"
+	COMMON_LIBS="$GLIB_LIBS -lgmodule-2.0"
+fi        
+ 
+
 dnl *********************************************************************
 dnl ** WEBKIT **************************************************************
 dnl *********************************************************************

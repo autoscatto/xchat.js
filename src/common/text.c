@@ -2034,6 +2034,7 @@ text_emit (int index, session *sess, char *a, char *b, char *c, char *d)
 /*        w_printpartjoin(word[1],word[2],stamp);*/
 		//uichat_add_msg(sess->ui_chat, word[2], word[1]);
 		/* implement ConfMode / Hide Join and Part Messages */
+        fe_set_tab_color (sess, 1);
 		if (chanopt_is_set (prefs.confmode, sess->text_hidejoinpart))
 			return;
 		break;
@@ -2055,6 +2056,7 @@ text_emit (int index, session *sess, char *a, char *b, char *c, char *d)
 	/* ===Highlighted message=== */
 	case XP_TE_HCHANACTION:
 	case XP_TE_HCHANMSG:
+        fe_set_tab_color (sess, 3);
 /*        w_printchanmsg(word[1],word[2],stamp,index==XP_TE_HCHANACTION,true);*/
 		//uichat_add_msg(sess->ui_chat, word[2], word[1]);
 		if (chanopt_is_set_a (prefs.input_beep_hilight, sess->alert_beep))
@@ -2070,7 +2072,7 @@ text_emit (int index, session *sess, char *a, char *b, char *c, char *d)
 	case XP_TE_CHANMSG:
 /*        w_printchanmsg(word[1],word[2],stamp,index==XP_TE_CHANACTION,false);*/
 		//uichat_add_msg(sess->ui_chat, word[2], word[1]);
-
+        fe_set_tab_color (sess, 2);
 		if (chanopt_is_set_a (prefs.input_beep_chans, sess->alert_beep))
 			sound_beep (sess);
 		if (chanopt_is_set_a (prefs.input_flash_chans, sess->alert_taskbar))
